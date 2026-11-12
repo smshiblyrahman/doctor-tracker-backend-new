@@ -1,0 +1,19 @@
+{
+  "name": "patient-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Doctor Tracker patient service: patient CRUD, search/filter/pagination and patient analytics",
+  "main": "server.tsx",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false server.tsx",
+    "build": "tsx ../scripts/build-service.tsx",
+    "start": "node dist/server.js",
+    "test": "jest --rootDir .. patient-service"
+  },
+  "dependencies": {
+    "@doctor-tracker/common": "1.0.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.9.0",
+    "zod": "^3.24.0"
+  }
+}

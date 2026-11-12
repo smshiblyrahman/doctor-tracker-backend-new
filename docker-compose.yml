@@ -1,0 +1,79 @@
+# Full backend: MongoDB + 4 services + gateway. Only the gateway is published to the host;
+# services talk over the compose network and their /internal endpoints stay private.
+#   docker compose up --build
+#   docker compose exec doctor-service true   # (services are reachable as http://<name>:<port>)
+# Secrets below are development defaults: override them via a .env file for anything real.
+
+x-secrets: &secrets
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-access-secret-change-me-0123456789abcdef}
+  INTERNAL_JWT_SECRET: ${INTERNAL_JWT_SECRET:-dev-internal-secret-change-me-0123456789abcd}
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 5s
+      retries: 10
+
+  auth-service:
+    build: { context: ., args: { SERVICE: auth-service } }
+    restart: unless-stopped
+    environment:
+      <<: *secrets
+      PORT: 5001
+      MONGO_URI: mongodb://mongo:27017/doctor_tracker_auth
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-me-0123456789abcdef}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@doctortracker.dev}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@12345}
+    depends_on: { mongo: { condition: service_healthy } }
+
+  doctor-service:
+    build: { context: ., args: { SERVICE: doctor-service } }
+    restart: unless-stopped
+    environment:
+      <<: *secrets
+      PORT: 5002
+      MONGO_URI: mongodb://mongo:27017/doctor_tracker_doctors
+      PATIENT_SERVICE_URL: http://patient-service:5003
+    depends_on: { mongo: { condition: service_healthy } }
+
+  patient-service:
+    build: { context: ., args: { SERVICE: patient-service } }
+    restart: unless-stopped
+    environment:
+      <<: *secrets
+      PORT: 5003
+      MONGO_URI: mongodb://mongo:27017/doctor_tracker_patients
+    depends_on: { mongo: { condition: service_healthy } }
+
+  dashboard-service:
+    build: { context: ., args: { SERVICE: dashboard-service } }
+    restart: unless-stopped
+    environment:
+      <<: *secrets
+      PORT: 5004
+      DOCTOR_SERVICE_URL: http://doctor-service:5002
+      PATIENT_SERVICE_URL: http://patient-service:5003
+
+  api-gateway:
+    build: { context: ., args: { SERVICE: api-gateway } }
+    restart: unless-stopped
+    environment:
+      <<: *secrets
+      PORT: 5000
+      AUTH_SERVICE_URL: http://auth-service:5001
+      DOCTOR_SERVICE_URL: http://doctor-service:5002
+      PATIENT_SERVICE_URL: http://patient-service:5003
+      DASHBOARD_SERVICE_URL: http://dashboard-service:5004
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+    ports:
+      - "${GATEWAY_PORT:-5050}:5000"
+    depends_on: [auth-service, doctor-service, patient-service, dashboard-service]
+
+volumes:
+  mongo-data:

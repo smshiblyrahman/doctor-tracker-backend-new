@@ -1,0 +1,82 @@
+{
+  "name": "doctor-tracker-backend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Doctor Tracker microservices: API gateway, auth, doctor, patient and dashboard services",
+  "workspaces": [
+    "packages/common",
+    "api-gateway",
+    "auth-service",
+    "doctor-service",
+    "patient-service",
+    "dashboard-service"
+  ],
+  "scripts": {
+    "mongo": "tsx scripts/local-mongo.tsx",
+    "dev": "concurrently -k -n mongo,gateway,auth,doctor,patient,dashboard -c gray,magenta,blue,green,yellow,cyan \"npm:mongo\" \"npm:dev:gateway\" \"npm:dev:auth\" \"npm:dev:doctor\" \"npm:dev:patient\" \"npm:dev:dashboard\"",
+    "dev:services": "concurrently -k -n gateway,auth,doctor,patient,dashboard -c magenta,blue,green,yellow,cyan \"npm:dev:gateway\" \"npm:dev:auth\" \"npm:dev:doctor\" \"npm:dev:patient\" \"npm:dev:dashboard\"",
+    "dev:gateway": "npm run dev -w api-gateway",
+    "dev:auth": "npm run dev -w auth-service",
+    "dev:doctor": "npm run dev -w doctor-service",
+    "dev:patient": "npm run dev -w patient-service",
+    "dev:dashboard": "npm run dev -w dashboard-service",
+    "seed": "tsx scripts/seed.tsx",
+    "token": "tsx scripts/internal-token.tsx",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.7.0",
+    "@swc/jest": "^0.2.36",
+    "@types/compression": "^1.7.5",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.12",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.2",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "concurrently": "^9.0.0",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.24.0",
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.tsx?$": [
+        "@swc/jest",
+        {
+          "jsc": {
+            "parser": {
+              "syntax": "typescript",
+              "tsx": true
+            },
+            "target": "es2022"
+          },
+          "module": {
+            "type": "commonjs"
+          }
+        }
+      ]
+    },
+    "moduleFileExtensions": [
+      "tsx",
+      "ts",
+      "js",
+      "json"
+    ],
+    "testMatch": [
+      "<rootDir>/*/tests/**/*.test.tsx",
+      "<rootDir>/packages/*/tests/**/*.test.tsx"
+    ],
+    "testTimeout": 60000
+  }
+}

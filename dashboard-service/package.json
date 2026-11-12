@@ -1,0 +1,18 @@
+{
+  "name": "dashboard-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Doctor Tracker dashboard service: composes pre-aggregated stats from doctor and patient services",
+  "main": "server.tsx",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false server.tsx",
+    "build": "tsx ../scripts/build-service.tsx",
+    "start": "node dist/server.js",
+    "test": "jest --rootDir .. dashboard-service"
+  },
+  "dependencies": {
+    "@doctor-tracker/common": "1.0.0",
+    "express": "^5.1.0",
+    "zod": "^3.24.0"
+  }
+}

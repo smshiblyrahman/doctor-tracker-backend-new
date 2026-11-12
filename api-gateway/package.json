@@ -1,0 +1,25 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Doctor Tracker API gateway: CORS, rate limiting, JWT verification and routing to services",
+  "main": "server.tsx",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false server.tsx",
+    "build": "tsx ../scripts/build-service.tsx",
+    "start": "node dist/server.js",
+    "test": "jest --rootDir .. api-gateway"
+  },
+  "dependencies": {
+    "@doctor-tracker/common": "1.0.0",
+    "compression": "^1.7.5",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.4.0",
+    "http-proxy-middleware": "^3.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.24.0"
+  }
+}
