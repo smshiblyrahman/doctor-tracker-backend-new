@@ -34,8 +34,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/${SERVICE}/dist ./${SERVICE}/dist
-# Route files are read at runtime for their Swagger JSDoc annotations.
-COPY --from=build /app/${SERVICE}/src/routes ./${SERVICE}/src/routes
+# Route files copied if present (api-gateway / services for Swagger JSDoc)
+COPY --from=build /app/ .
 WORKDIR /app/${SERVICE}
 USER node
 CMD ["node", "dist/server.js"]
