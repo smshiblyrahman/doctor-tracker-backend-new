@@ -13,25 +13,27 @@ Scalable microservices backend with API Gateway for Doctor Tracker admin portal.
 
 ---
 
-## Live Deployment (Render)
+## Live Deployment (Render - Single Web Service)
 
-This repository includes a `render.yaml` blueprint deploying all microservices.
+This repository includes `server.unified.tsx` and `render.yaml` to run all microservices (`auth`, `doctor`, `patient`, `dashboard`) + `api-gateway` in a single Render Web Service (free tier friendly, no cross-service networking latency, all Swagger docs unified).
 
-### Where to Put MongoDB URL?
-MongoDB URLs belong in **Render**, NOT Vercel. Frontend never connects to MongoDB directly.
+### Environment Variables on Render
+Go to your Render Web Service -> **Environment** tab:
 
-1. **Get MongoDB Atlas URL**:
-   Format:
-   `mongodb+srv://<username>:<password>@cluster0.abcde.mongodb.net/?retryWrites=true&w=majority`
-2. **In Render Dashboard**:
-   - Go to each created service under **Environment** tab:
-     - **doctor-tracker-auth**: Add `MONGO_URI` -> `mongodb+srv://<username>:<password>@cluster0.abcde.mongodb.net/doctor_tracker_auth?retryWrites=true&w=majority`
-     - **doctor-tracker-doctors**: Add `MONGO_URI` -> `mongodb+srv://<username>:<password>@cluster0.abcde.mongodb.net/doctor_tracker_doctors?retryWrites=true&w=majority`
-     - **doctor-tracker-patients**: Add `MONGO_URI` -> `mongodb+srv://<username>:<password>@cluster0.abcde.mongodb.net/doctor_tracker_patients?retryWrites=true&w=majority`
-3. **Set Secrets in Render**:
-   - `JWT_ACCESS_SECRET`: 32+ character random secret (same across auth and gateway).
-   - `INTERNAL_JWT_SECRET`: 32+ character random secret (same across all 5 services).
-   - `CLIENT_URL`: Your Vercel frontend URL (e.g. `https://doctor-tracker-frontend-new.vercel.app`).
+| Key | Value / Example | Description |
+|---|---|---|
+| `MONGODB_URI` | `mongodb+srv://<user>:<password>@cluster0.abcde.mongodb.net` | Base MongoDB Atlas URI (databases `doctor_tracker_auth`, `doctor_tracker_doctors`, `doctor_tracker_patients` are created automatically) |
+| `JWT_ACCESS_SECRET` | `dev-access-secret-change-me-0123456789abcdef` | 32+ char secret for JWT auth cookies |
+| `JWT_REFRESH_SECRET` | `dev-refresh-secret-change-me-0123456789abcdef` | 32+ char secret for refresh tokens |
+| `INTERNAL_JWT_SECRET` | `dev-internal-secret-change-me-0123456789abcd` | 32+ char secret for inter-service communication |
+| `CLIENT_URL` | `http://localhost:3000,https://doctor-tracker-frontend-new.vercel.app` | Allowed CORS origins for browser cookies |
+| `COOKIE_SECURE` | `true` | Required for HTTPS on Render & Vercel |
+| `COOKIE_SAMESITE` | `none` | Required for cross-domain cookies (Vercel frontend -> Render backend) |
+| `NODE_ENV` | `production` | Production environment |
+
+### Root Health Check & API Docs
+- Root URL: `GET https://<your-service>.onrender.com/` returns HTTP 200 `{ "success": true, "message": "Backend API is running successfully!" }`.
+- Swagger Docs: `GET https://<your-service>.onrender.com/api-docs` returns live interactive docs for all service endpoints.
 
 ---
 
