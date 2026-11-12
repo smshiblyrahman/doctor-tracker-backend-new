@@ -22,7 +22,8 @@
     "dev:dashboard": "npm run dev -w dashboard-service",
     "seed": "tsx scripts/seed.tsx",
     "token": "tsx scripts/internal-token.tsx",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present && tsx scripts/build-service.tsx server.unified.tsx dist/server.unified.js",
+    "start": "node dist/server.unified.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest"
   },

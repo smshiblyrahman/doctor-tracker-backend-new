@@ -7,10 +7,12 @@ import { build } from 'esbuild';
 import path from 'node:path';
 
 const serviceDir = process.cwd();
+const entryFile = process.argv[2] || 'server.tsx';
+const outFile = process.argv[3] || 'dist/server.js';
 
 build({
-  entryPoints: [path.join(serviceDir, 'server.tsx')],
-  outfile: path.join(serviceDir, 'dist', 'server.js'),
+  entryPoints: [path.resolve(serviceDir, entryFile)],
+  outfile: path.resolve(serviceDir, outFile),
   bundle: true,
   platform: 'node',
   target: 'node20',

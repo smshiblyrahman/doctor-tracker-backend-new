@@ -15,7 +15,7 @@ RUN npm ci --ignore-scripts
 FROM deps AS build
 ARG SERVICE=api-gateway
 COPY . .
-RUN if [ -n "$SERVICE" ]; then cd "$SERVICE" && npm run build; else npm run build --workspaces; fi
+RUN npm run build
 
 FROM node:22-alpine AS prod-deps
 WORKDIR /app
@@ -34,6 +34,5 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/ .
-WORKDIR /app/${SERVICE}
 USER node
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/server.unified.js"]

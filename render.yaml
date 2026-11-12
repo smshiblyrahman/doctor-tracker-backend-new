@@ -1,142 +1,30 @@
-# Render deployment for Doctor Tracker backend (5 microservices + API gateway).
-# All services are deployed as separate Render web services.
-# MongoDB is provided by MongoDB Atlas — set MONGO_URI_* vars in Render dashboard.
-#
-# Deploy steps:
-#   1. Create a MongoDB Atlas cluster (free M0 tier is fine).
-#   2. Add a database user and whitelist 0.0.0.0/0 for Render IPs.
-#   3. Get the connection string: mongodb+srv://<user>:<pass>@<cluster>.mongodb.net
-#   4. Push this repo to GitHub and connect it to Render via render.yaml.
-#   5. Set the env vars listed below in each service's Render dashboard.
+# Render deployment for Doctor Tracker backend.
+# Deploys a single unified backend web service running all microservices and API gateway together.
 
 services:
-  # ── Auth Service ──────────────────────────────────────────────────────────
   - type: web
-    name: doctor-tracker-auth
+    name: doctor-tracker-backend
     runtime: node
     rootDir: .
-    buildCommand: npm ci && npm run build -w auth-service
-    startCommand: node auth-service/dist/server.js
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     plan: free
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000          # Render always uses 10000 internally; override below
-      - key: MONGO_URI
-        sync: false           # Set in dashboard: mongodb+srv://...doctor_tracker_auth
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
       - key: JWT_ACCESS_SECRET
-        sync: false
+        value: dev-access-secret-change-me-0123456789abcdef
       - key: JWT_REFRESH_SECRET
-        sync: false
+        value: dev-refresh-secret-change-me-0123456789abcdef
       - key: INTERNAL_JWT_SECRET
-        sync: false
+        value: dev-internal-secret-change-me-0123456789abcd
+      - key: CLIENT_URL
+        value: http://localhost:3000,https://doctor-tracker-frontend-new.vercel.app
       - key: COOKIE_SECURE
         value: "true"
       - key: COOKIE_SAMESITE
         value: none
-      - key: ACCESS_TOKEN_TTL_SECONDS
-        value: "900"
-      - key: REFRESH_TOKEN_TTL_SECONDS
-        value: "604800"
-      - key: ADMIN_NAME
-        value: Admin User
-      - key: ADMIN_EMAIL
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
-
-  # ── Doctor Service ────────────────────────────────────────────────────────
-  - type: web
-    name: doctor-tracker-doctors
-    runtime: node
-    rootDir: .
-    buildCommand: npm ci && npm run build -w doctor-service
-    startCommand: node doctor-service/dist/server.js
-    plan: free
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: MONGO_URI
-        sync: false           # mongodb+srv://...doctor_tracker_doctors
-      - key: PATIENT_SERVICE_URL
-        sync: false           # https://doctor-tracker-patients.onrender.com
-      - key: INTERNAL_JWT_SECRET
-        sync: false
-
-  # ── Patient Service ───────────────────────────────────────────────────────
-  - type: web
-    name: doctor-tracker-patients
-    runtime: node
-    rootDir: .
-    buildCommand: npm ci && npm run build -w patient-service
-    startCommand: node patient-service/dist/server.js
-    plan: free
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: MONGO_URI
-        sync: false           # mongodb+srv://...doctor_tracker_patients
-      - key: INTERNAL_JWT_SECRET
-        sync: false
-
-  # ── Dashboard Service ─────────────────────────────────────────────────────
-  - type: web
-    name: doctor-tracker-dashboard
-    runtime: node
-    rootDir: .
-    buildCommand: npm ci && npm run build -w dashboard-service
-    startCommand: node dashboard-service/dist/server.js
-    plan: free
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: DOCTOR_SERVICE_URL
-        sync: false           # https://doctor-tracker-doctors.onrender.com
-      - key: PATIENT_SERVICE_URL
-        sync: false           # https://doctor-tracker-patients.onrender.com
-      - key: INTERNAL_JWT_SECRET
-        sync: false
-      - key: CACHE_TTL_SECONDS
-        value: "30"
-
-  # ── API Gateway (public entry point) ──────────────────────────────────────
-  - type: web
-    name: doctor-tracker-gateway
-    runtime: node
-    rootDir: .
-    buildCommand: npm ci && npm run build -w api-gateway
-    startCommand: node api-gateway/dist/server.js
-    plan: free
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: AUTH_SERVICE_URL
-        sync: false           # https://doctor-tracker-auth.onrender.com
-      - key: DOCTOR_SERVICE_URL
-        sync: false           # https://doctor-tracker-doctors.onrender.com
-      - key: PATIENT_SERVICE_URL
-        sync: false           # https://doctor-tracker-patients.onrender.com
-      - key: DASHBOARD_SERVICE_URL
-        sync: false           # https://doctor-tracker-dashboard.onrender.com
-      - key: CLIENT_URL
-        sync: false           # https://your-app.vercel.app
-      - key: JWT_ACCESS_SECRET
-        sync: false
-      - key: INTERNAL_JWT_SECRET
-        sync: false
-      - key: RATE_LIMIT_WINDOW_MS
-        value: "900000"
-      - key: RATE_LIMIT_MAX
-        value: "1000"
-      - key: LOGIN_RATE_LIMIT_MAX
-        value: "10"
-
