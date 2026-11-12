@@ -6,7 +6,7 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 
-const baseMongo = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb+srv://shiblynsu_db_user:lTxbwaqcQHpgOfhw@cluster0.73z5cdc.mongodb.net';
+const baseMongo = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017';
 function getDbUri(dbName: string) {
   if (baseMongo.includes('mongodb+srv://') || baseMongo.includes('mongodb://')) {
     const url = new URL(baseMongo);
