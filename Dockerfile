@@ -13,9 +13,9 @@ COPY dashboard-service/package.json dashboard-service/
 RUN npm ci --ignore-scripts
 
 FROM deps AS build
-ARG SERVICE
+ARG SERVICE=api-gateway
 COPY . .
-RUN cd "$SERVICE" && npm run build
+RUN if [ -n "$SERVICE" ]; then cd "$SERVICE" && npm run build; else npm run build --workspaces; fi
 
 FROM node:22-alpine AS prod-deps
 WORKDIR /app
@@ -29,12 +29,10 @@ COPY --from=deps /app/dashboard-service/package.json dashboard-service/
 RUN npm ci --omit=dev --ignore-scripts
 
 FROM node:22-alpine
-ARG SERVICE
+ARG SERVICE=api-gateway
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=build /app/${SERVICE}/dist ./${SERVICE}/dist
-# Route files copied if present (api-gateway / services for Swagger JSDoc)
 COPY --from=build /app/ .
 WORKDIR /app/${SERVICE}
 USER node
