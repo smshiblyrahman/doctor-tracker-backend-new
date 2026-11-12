@@ -46,5 +46,7 @@ curl http://localhost:5050/health/services
 ```
 
 Default gateway port: `5050` (or `5000`).
-Default seeded admin: `admin@doctortracker.dev` / `Admin@12345`.
+Default seeded accounts:
+- **Admin:** `admin@doctortracker.dev` / `Admin@12345`
+- **Patient:** `patient@doctortracker.dev` / `Patient@12345`
 

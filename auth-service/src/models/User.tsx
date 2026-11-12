@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { Schema, model, type HydratedDocument, type Model } from 'mongoose';
 
 export const BCRYPT_COST = 12;
-export const USER_ROLES = ['admin'] as const;
+export const USER_ROLES = ['admin', 'patient'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 export interface IUser {

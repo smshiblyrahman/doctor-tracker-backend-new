@@ -40,10 +40,10 @@ export function registerProxyRoutes(app: Express) {
     proxyTo(services.auth, '/api/v1/auth', 'Auth service'),
   );
 
-  const adminOnly = [authenticate({ required: true }), requireRole('admin')];
-  app.use('/api/v1/doctors', ...adminOnly, proxyTo(services.doctor, '/api/v1/doctors', 'Doctor service'));
-  app.use('/api/v1/patients', ...adminOnly, proxyTo(services.patient, '/api/v1/patients', 'Patient service'));
-  app.use('/api/v1/dashboard', ...adminOnly, proxyTo(services.dashboard, '/api/v1/dashboard', 'Dashboard service'));
+  const authenticatedUser = [authenticate({ required: true }), requireRole('admin', 'patient')];
+  app.use('/api/v1/doctors', ...authenticatedUser, proxyTo(services.doctor, '/api/v1/doctors', 'Doctor service'));
+  app.use('/api/v1/patients', ...authenticatedUser, proxyTo(services.patient, '/api/v1/patients', 'Patient service'));
+  app.use('/api/v1/dashboard', ...authenticatedUser, proxyTo(services.dashboard, '/api/v1/dashboard', 'Dashboard service'));
 }
 
 /** Liveness of every downstream service, for ops and the README's quick check. */
