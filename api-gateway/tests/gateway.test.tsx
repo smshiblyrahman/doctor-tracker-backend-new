@@ -40,6 +40,21 @@ function accessToken(overrides: Record<string, unknown> = {}, options: jwt.SignO
 }
 
 describe('api-gateway', () => {
+  it('returns HTTP 200 with service info on GET /', async () => {
+    const res = await request(app).get('/').expect(200);
+    expect(res.body).toEqual({
+      success: true,
+      message: 'Backend API is running successfully!',
+      data: {
+        status: 'healthy',
+        service: 'Backend API',
+        gateway: 'api-gateway',
+        version: '1.0.0',
+        docs: '/api-docs',
+      },
+    });
+  });
+
   it('rejects unauthenticated requests before they reach a service', async () => {
     const res = await request(app).get('/api/v1/doctors').expect(401);
     expect(res.body.error.code).toBe('UNAUTHORIZED');

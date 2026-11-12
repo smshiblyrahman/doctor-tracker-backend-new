@@ -28,6 +28,20 @@ export function createApp() {
     res.status(healthy ? 200 : 503).json({ status: healthy ? 'ok' : 'degraded', services: status });
   });
 
+  app.get('/', (_req, res) => {
+    res.status(200).json({
+      success: true,
+      message: 'Backend API is running successfully!',
+      data: {
+        status: 'healthy',
+        service: 'Backend API',
+        gateway: 'api-gateway',
+        version: '1.0.0',
+        docs: '/api-docs',
+      },
+    });
+  });
+
   mountAggregatedSwagger(app);
   app.use('/api', apiLimiter);
   registerProxyRoutes(app);
